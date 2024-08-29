@@ -1,0 +1,240 @@
+Index: src/RelacionesJava1/Factura.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package RelacionesJava1;\r\n\r\nimport java.text.SimpleDateFormat;\r\nimport java.util.Date;\r\n\r\npublic class Factura {\r\n    private int folio;\r\n    private String descripcion;\r\n    private Date fecha;\r\n    private Cliente cliente;\r\n    private ÍtemFactura[] items;\r\n\r\n    public Factura(int folio,String descripcion,Date fecha,Cliente cliente, ÍtemFactura[] items){\r\n        this.folio=folio;\r\n        this.descripcion=descripcion;\r\n        this.fecha=fecha;\r\n        this.cliente=cliente;\r\n        this.items=items;\r\n    }\r\n\r\n    public Factura(String desc, Cliente cliente) {\r\n    }\r\n\r\n    //crear Getters y Setter\r\n\r\n    public int getFolio() {\r\n        return folio;\r\n    }\r\n\r\n    public void setFolio(int folio) {\r\n        this.folio = folio;\r\n    }\r\n\r\n    public String getDescripcion() {\r\n        return descripcion;\r\n    }\r\n\r\n    public void setDescripcion(String descripcion) {\r\n        this.descripcion = descripcion;\r\n    }\r\n\r\n    public Date getFecha() {\r\n        return fecha;\r\n    }\r\n\r\n    public void setFecha(Date fecha) {\r\n        this.fecha = fecha;\r\n    }\r\n\r\n    public Cliente getCliente() {\r\n        return cliente;\r\n    }\r\n\r\n    public void setCliente(Cliente cliente) {\r\n        this.cliente = cliente;\r\n    }\r\n\r\n    public ÍtemFactura[] getItems() {\r\n        return items;\r\n    }\r\n\r\n    public void setItems(ÍtemFactura[] items) {\r\n        this.items = items;\r\n    }\r\n    public void addItemFactura(ÍtemFactura item) {\r\n        // Buscar la primera posición vacía en el arreglo de items\r\n        for (int i = 0; i < this.items.length; i++) {\r\n            if (this.items[i] == null) {\r\n                this.items[i] = item; // Añadir el ítem en la primera posición vacía\r\n                break; // Salir del bucle después de agregar el ítem\r\n            }\r\n        }\r\n    }\r\n    public float calcularTotal() {\r\n        float total = 0.0f;\r\n\r\n        // Iterar sobre cada ítem en el arreglo de items\r\n        for (ÍtemFactura item : this.items) {\r\n            if (item != null) {\r\n                total += item.calcularImporte(); // Sumar el importe del ítem al total\r\n            }\r\n        }\r\n\r\n        return total; // Devolver el importe total de la factura\r\n    }\r\n    // prepara el detalle de la factura\r\n    public String generarDetalle() {\r\n        StringBuilder sb = new StringBuilder(\"Factura Nº: \");\r\n        sb.append(folio)\r\n                .append(\"\\nCliente: \")\r\n                .append(this.cliente.getNombre())\r\n                .append(\"\\t NIF: \")\r\n                .append(cliente.getNif())\r\n                .append(\"\\nDescripción: \")\r\n                .append(this.descripcion)\r\n                .append(\"\\n\");\r\n\r\n        SimpleDateFormat df = new SimpleDateFormat(\"dd 'de' MMMM, yyyy\");\r\n        sb.append(\"Fecha Emisión: \")\r\n                .append(df.format(this.fecha))\r\n                .append(\"\\n\")\r\n                .append(\"\\n#\\tNombre\\t$\\tCant.\\tTotal\\n\");\r\n\r\n        for(ÍtemFactura item: this.items){\r\n            if(item == null){\r\n                continue;\r\n            }\r\n            sb.append(item)\r\n                    .append(\"\\n\");\r\n        }\r\n        sb.append(\"\\nGran Total: \")\r\n                .append(calcularTotal());\r\n\r\n        return sb.toString();\r\n    }\r\n\r\n    @Override\r\n    public String toString() {\r\n        return generarDetalle();\r\n    }\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/RelacionesJava1/Factura.java b/src/RelacionesJava1/Factura.java
+--- a/src/RelacionesJava1/Factura.java	(revision 6c030f3bc8681a4500b7fddc6acee54b224724d0)
++++ b/src/RelacionesJava1/Factura.java	(date 1724943851897)
+@@ -10,6 +10,33 @@
+     private Cliente cliente;
+     private ÍtemFactura[] items;
+ 
++
++    private int indiceActual;
++
++
++    private static int MAX_ITEMS = 100;
++    private static int ultimoFolio = 0;
++
++    public Factura(String descripcion, Cliente cliente) {
++        this.descripcion = descripcion;
++        this.cliente = cliente;
++        this.items = new ÍtemFactura[MAX_ITEMS];
++        this.indiceActual = 0;
++        this.folio = generarFolio();
++        this.fecha = new Date();
++    }
++
++    private static int generarFolio() {
++        return ++ultimoFolio;
++    }
++
++    public boolean agregarItem(ÍtemFactura item) {
++        if (indiceActual < MAX_ITEMS) {
++            items[indiceActual++] = item;
++            return true;
++        }
++        return false;
++    }
+     public Factura(int folio,String descripcion,Date fecha,Cliente cliente, ÍtemFactura[] items){
+         this.folio=folio;
+         this.descripcion=descripcion;
+@@ -18,9 +45,6 @@
+         this.items=items;
+     }
+ 
+-    public Factura(String desc, Cliente cliente) {
+-    }
+-
+     //crear Getters y Setter
+ 
+     public int getFolio() {
+@@ -77,7 +101,7 @@
+         // Iterar sobre cada ítem en el arreglo de items
+         for (ÍtemFactura item : this.items) {
+             if (item != null) {
+-                total += item.calcularImporte(); // Sumar el importe del ítem al total
++                total += item.calculatorImport(); // Sumar el importe del ítem al total
+             }
+         }
+ 
+Index: src/RelacionesJava1/ÍtemFactura.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package RelacionesJava1;\r\n\r\npublic class ÍtemFactura{\r\n    private Producto producto;\r\n    private int cantidad;\r\n\r\n    public ÍtemFactura (Producto producto,int cantidad) {\r\n        this.producto=producto;\r\n        this.cantidad=cantidad;\r\n    }\r\n\r\n    public ÍtemFactura(int i, Producto producto) {\r\n    }\r\n    //crear Getters y Setter\r\n\r\n    public Producto getProducto() {\r\n        return producto;\r\n    }\r\n\r\n    public void setProducto(Producto producto) {\r\n        this.producto = producto;\r\n    }\r\n\r\n    public int getCantidad() {\r\n        return cantidad;\r\n    }\r\n\r\n    public void setCantidad(int cantidad) {\r\n        this.cantidad = cantidad;\r\n    }\r\n\r\n\r\n\r\n    // metodo para calcular el importe de un producto.\r\n\r\n    public float calcularImporte() {\r\n\r\n        // operacion es catidad * precio que tiene el objeto producto\r\n        return (float) (cantidad* producto.getPrecio());\r\n    }\r\n\r\n\r\n    // metodo para mostrar informacion del item registrado.\r\n\r\n    @Override\r\n    public String toString() {\r\n        return producto +\r\n                \"\\t\" + cantidad +\r\n                \"\\t\" + calcularImporte();\r\n    }\r\n}\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/RelacionesJava1/ÍtemFactura.java b/src/RelacionesJava1/ÍtemFactura.java
+--- a/src/RelacionesJava1/ÍtemFactura.java	(revision 6c030f3bc8681a4500b7fddc6acee54b224724d0)
++++ b/src/RelacionesJava1/ÍtemFactura.java	(date 1724943851889)
+@@ -33,10 +33,10 @@
+ 
+     // metodo para calcular el importe de un producto.
+ 
+-    public float calcularImporte() {
++    public float calculatorImport() {
+ 
+         // operacion es catidad * precio que tiene el objeto producto
+-        return (float) (cantidad* producto.getPrecio());
++        return (float) (cantidad * producto.getPrecio());
+     }
+ 
+ 
+@@ -46,7 +46,7 @@
+     public String toString() {
+         return producto +
+                 "\t" + cantidad +
+-                "\t" + calcularImporte();
++                "\t" + calculatorImport();
+     }
+ }
+ 
+Index: src/Main.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import RelacionesJava1.Cliente;\r\nimport RelacionesJava1.Factura;\r\nimport RelacionesJava1.Producto;\r\nimport RelacionesJava1.ÍtemFactura;\r\n\r\nimport java.util.Scanner;\r\n\r\npublic class Main {\r\n    public static void main(String[] args) {\r\n\r\n        Cliente cliente = new Cliente();\r\n        cliente.setNif(\"5555-5\");\r\n        cliente.setNombre(\"Andrés\");\r\n\r\n        Scanner s = new Scanner(System.in);\r\n        System.out.print(\"Ingrese una descripción de la factura: \");\r\n        String desc = s.nextLine();\r\n        Factura factura = new Factura(desc, cliente);\r\n\r\n        Producto producto;\r\n\r\n        System.out.println();\r\n\r\n        for(int i = 0; i<5; i++){\r\n            producto = new Producto();\r\n            System.out.print(\"Ingrese producto nº \" + producto.getCodigo() + \": \");\r\n            producto.setNombre(s.nextLine());\r\n\r\n            System.out.print(\"Ingrese el precio: \");\r\n            producto.setPrecio(s.nextFloat());\r\n\r\n            System.out.print(\"Ingrese la cantidad: \");\r\n            factura.addItemFactura(new ÍtemFactura(s.nextInt(), producto));\r\n\r\n            System.out.println();\r\n            s.nextLine();\r\n        }\r\n        System.out.println(factura);\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/Main.java b/src/Main.java
+--- a/src/Main.java	(revision 6c030f3bc8681a4500b7fddc6acee54b224724d0)
++++ b/src/Main.java	(date 1724943499457)
+@@ -1,7 +1,4 @@
+-import RelacionesJava1.Cliente;
+-import RelacionesJava1.Factura;
+-import RelacionesJava1.Producto;
+-import RelacionesJava1.ÍtemFactura;
++import RelacionesJava1.*;
+ 
+ import java.util.Scanner;
+ 
+@@ -37,4 +34,4 @@
+         }
+         System.out.println(factura);
+     }
+-}
+\ No newline at end of file
++}
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"1c2ed082-ccfb-403d-9592-842e28569ad3\" name=\"Changes\" comment=\"\">\r\n      <change afterPath=\"$PROJECT_DIR$/.gitignore\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/.idea/misc.xml\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/.idea/modules.xml\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/.idea/vcs.xml\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/Relaciones-java1.iml\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/src/Main.java\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/src/RelacionesJava1/Cliente.java\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/src/RelacionesJava1/Factura.java\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/src/RelacionesJava1/Producto.java\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/src/RelacionesJava1/ÍtemFactura.java\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"Class\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 0\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"2lKlUUKa0jIMYtR4h5IqITKt7DM\" />\r\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\" />\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\">{\r\n  &quot;keyToString&quot;: {\r\n    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,\r\n    &quot;git-widget-placeholder&quot;: &quot;master&quot;,\r\n    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,\r\n    &quot;onboarding.tips.debug.path&quot;: &quot;C:/Users/SENA/Documents/Relaciones-java1/src/Main.java&quot;\r\n  }\r\n}</component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"1c2ed082-ccfb-403d-9592-842e28569ad3\" name=\"Changes\" comment=\"\" />\r\n      <created>1724936665516</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1724936665516</updated>\r\n    </task>\r\n    <servers />\r\n  </component>\r\n  <component name=\"XDebuggerManager\">\r\n    <breakpoint-manager>\r\n      <breakpoints>\r\n        <line-breakpoint enabled=\"true\" type=\"java-line\">\r\n          <url>file://$PROJECT_DIR$/src/Main.java</url>\r\n          <line>11</line>\r\n          <option name=\"timeStamp\" value=\"1\" />\r\n        </line-breakpoint>\r\n      </breakpoints>\r\n    </breakpoint-manager>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 6c030f3bc8681a4500b7fddc6acee54b224724d0)
++++ b/.idea/workspace.xml	(date 1724943857235)
+@@ -1,18 +1,14 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
++  <component name="AutoImportSettings">
++    <option name="autoReloadType" value="SELECTIVE" />
++  </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="1c2ed082-ccfb-403d-9592-842e28569ad3" name="Changes" comment="">
+-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/Relaciones-java1.iml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/src/RelacionesJava1/Cliente.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/src/RelacionesJava1/Factura.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/src/RelacionesJava1/Producto.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/src/RelacionesJava1/ÍtemFactura.java" afterDir="false" />
++    <list default="true" id="1c2ed082-ccfb-403d-9592-842e28569ad3" name="Changes" comment="final">
++      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/RelacionesJava1/Factura.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/RelacionesJava1/Factura.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/RelacionesJava1/ÍtemFactura.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/RelacionesJava1/ÍtemFactura.java" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -29,6 +25,18 @@
+   <component name="Git.Settings">
+     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+   </component>
++  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
++  "lastFilter": {
++    "state": "OPEN",
++    "assignee": "luisafernanda0222"
++  }
++}]]></component>
++  <component name="GithubPullRequestsUISettings"><![CDATA[{
++  "selectedUrlAndAccountId": {
++    "url": "https://github.com/luisafernanda0222/Relacion-entre-clases2.git",
++    "accountId": "3681e611-61a7-4983-bf31-0a4dae30e2a6"
++  }
++}]]></component>
+   <component name="ProjectColorInfo">{
+   &quot;associatedIndex&quot;: 0
+ }</component>
+@@ -38,14 +46,15 @@
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+   </component>
+-  <component name="PropertiesComponent">{
+-  &quot;keyToString&quot;: {
+-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+-    &quot;onboarding.tips.debug.path&quot;: &quot;C:/Users/SENA/Documents/Relaciones-java1/src/Main.java&quot;
++  <component name="PropertiesComponent"><![CDATA[{
++  "keyToString": {
++    "Application.Main.executor": "Run",
++    "RunOnceActivity.ShowReadmeOnStart": "true",
++    "git-widget-placeholder": "master",
++    "kotlin-language-version-configured": "true",
++    "onboarding.tips.debug.path": "C:/Users/SENA/Documents/Relaciones-java1/src/Main.java"
+   }
+-}</component>
++}]]></component>
+   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+   <component name="TaskManager">
+     <task active="true" id="Default" summary="Default task">
+@@ -55,17 +64,28 @@
+       <option name="presentableId" value="Default" />
+       <updated>1724936665516</updated>
+     </task>
++    <task id="LOCAL-00001" summary="final">
++      <option name="closed" value="true" />
++      <created>1724936948478</created>
++      <option name="number" value="00001" />
++      <option name="presentableId" value="LOCAL-00001" />
++      <option name="project" value="LOCAL" />
++      <updated>1724936948478</updated>
++    </task>
++    <task id="LOCAL-00002" summary="final">
++      <option name="closed" value="true" />
++      <created>1724943852716</created>
++      <option name="number" value="00002" />
++      <option name="presentableId" value="LOCAL-00002" />
++      <option name="project" value="LOCAL" />
++      <updated>1724943852716</updated>
++    </task>
++    <option name="localTasksCounter" value="3" />
+     <servers />
+   </component>
+-  <component name="XDebuggerManager">
+-    <breakpoint-manager>
+-      <breakpoints>
+-        <line-breakpoint enabled="true" type="java-line">
+-          <url>file://$PROJECT_DIR$/src/Main.java</url>
+-          <line>11</line>
+-          <option name="timeStamp" value="1" />
+-        </line-breakpoint>
+-      </breakpoints>
+-    </breakpoint-manager>
++  <component name="VcsManagerConfiguration">
++    <MESSAGE value="final 2" />
++    <MESSAGE value="final" />
++    <option name="LAST_COMMIT_MESSAGE" value="final" />
+   </component>
+ </project>
+\ No newline at end of file
